@@ -1,0 +1,11 @@
+.env
+.env.*
+!*.example
+node_modules/
+*.log
+config/onebot11*.json
+config/webui.json
+cache/
+state/
+qrcode.png
+
