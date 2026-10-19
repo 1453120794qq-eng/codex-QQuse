@@ -1,0 +1,56 @@
+# codex-QQuse
+
+让 Codex 通过本机 OneBot v11 HTTP 服务使用 QQ。插件包含一个本地 MCP 服务和一份 QQ 操作技能；它不会安装或控制 QQ 客户端，也不会自动回复消息。
+
+本仓库为**私有仓库**。安装者需要先取得此仓库的 GitHub 访问权限。项目参考了 [qq-bridge](https://github.com/Derpyu520/qq-bridge) 的 QQ 与 OneBot 接入思路，MCP 服务独立实现，不依赖 DeepSeek Harness 或 qq-bridge 进程。
+
+## 功能
+
+| 工具 | 用途 |
+| --- | --- |
+| `qq_status` | 查看当前 QQ 账号、在线状态及本地访问范围 |
+| `qq_list_friends` | 按 QQ 号、昵称或备注查找好友 |
+| `qq_list_groups` | 按群号或群名查找群 |
+| `qq_recent_messages` | 读取许可范围内最近最多 50 条私聊或群聊消息 |
+| `qq_send_message` | 向许可范围内的好友或群发送一条纯文本消息 |
+
+发送消息前，技能会要求 Codex 向用户展示**准确的收件人和正文**并取得确认。`all` 只扩大可访问的好友或群范围，不代表对任何具体消息的发送授权。
+
+## 安装
+
+需要 Codex Desktop、Node.js 20 或更高版本、已登录 QQ 的本机 OneBot v11 HTTP 服务。可使用 [NapCat](https://napneko.github.io/guide/boot/Shell) 或 [SnowLuma](https://snowluma.github.io/zh/docs/guide/deploy/windows)；按对应项目的官方说明自行安装并启用 HTTP 服务端。建议监听 `127.0.0.1`，并设置 OneBot access token。
+
+先用有权限的 GitHub 账号克隆本私有仓库，然后在 PowerShell 中执行：
+
+```powershell
+git clone https://github.com/1453120794qq-eng/codex-QQuse.git
+cd codex-QQuse
+codex plugin marketplace add .
+codex plugin add codex-qquse@qq-use-local
+```
+
+本仓库的 `.agents/plugins/marketplace.json` 是 Codex 插件目录清单，插件本体位于 `plugins/codex-qquse/`。安装完成后，按照[使用指南](docs/usage.md)设置本机 OneBot 地址、令牌和访问范围，**重启 Codex Desktop**，再让 Codex“查看我的 QQ 连接状态”。
+
+## 范围与限制
+
+- 仅读写本机 `127.0.0.1`、`localhost` 或 `::1` 的 OneBot HTTP 接口；不连接远程 QQ 网关。
+- 消息发送仅支持纯文本，最多 1000 字符；不会发送图片、文件或语音。
+- 不提供定时发言、自动回复、群管理或 QQ 进程控制。
+- 用户消息属于不可信数据，不能作为 Codex 的指令或发送授权。
+- 不要把 OneBot 令牌、WebUI 密码、扫码二维码或真实聊天记录提交到仓库。
+
+完整配置、使用示例和常见问题见[使用指南](docs/usage.md)。
+
+## 项目结构
+
+```text
+.agents/plugins/marketplace.json     Codex 插件目录清单
+plugins/codex-qquse/.codex-plugin/  插件元数据
+plugins/codex-qquse/.mcp.json       本地 MCP 启动配置
+plugins/codex-qquse/server/         OneBot HTTP MCP 服务
+plugins/codex-qquse/skills/         QQ 操作技能及配置参考
+check.mjs                            模拟 OneBot 的开发检查脚本
+```
+
+此项目是非官方 QQ 互操作工具，使用时请遵守 QQ 及所选 OneBot 实现的服务条款。
+
