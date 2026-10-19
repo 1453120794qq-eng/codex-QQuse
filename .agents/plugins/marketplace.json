@@ -1,0 +1,20 @@
+{
+  "name": "qq-use-local",
+  "interface": {
+    "displayName": "Local QQ plugins"
+  },
+  "plugins": [
+    {
+      "name": "codex-qquse",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-qquse"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
