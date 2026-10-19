@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "qq_use": {
+      "command": "node",
+      "args": ["./server/index.mjs"],
+      "cwd": ".",
+      "env_vars": [
+        "CODEX_QQUSE_HTTP_URL",
+        "CODEX_QQUSE_TOKEN",
+        "CODEX_QQUSE_GROUPS",
+        "CODEX_QQUSE_USERS"
+      ],
+      "startup_timeout_sec": 10,
+      "tool_timeout_sec": 30
+    }
+  }
+}
