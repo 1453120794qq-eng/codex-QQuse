@@ -1,0 +1,21 @@
+{
+  "name": "codex-qquse",
+  "version": "0.1.3",
+  "description": "Use a locally connected QQ account through a restricted OneBot v11 MCP server.",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "codex-QQuse",
+    "shortDescription": "Read and send QQ messages",
+    "longDescription": "Connect Codex to a local SnowLuma or compatible OneBot v11 HTTP endpoint to find chats, read recent messages, and send plain text with explicit user approval.",
+    "developerName": "1453120794qq-eng",
+    "websiteURL": "https://github.com/1453120794qq-eng/codex-QQuse",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "查看我的 QQ 连接状态",
+      "帮我查找一个 QQ 群并读取最近消息",
+      "帮我给 QQ 好友拟一条消息，确认后发送"
+    ]
+  }
+}
