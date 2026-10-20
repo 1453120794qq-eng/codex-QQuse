@@ -1,6 +1,6 @@
 {
   "name": "codex-qquse",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Use a locally connected QQ account through a restricted OneBot v11 MCP server.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
