@@ -8,7 +8,11 @@
         "CODEX_QQUSE_HTTP_URL",
         "CODEX_QQUSE_TOKEN",
         "CODEX_QQUSE_GROUPS",
-        "CODEX_QQUSE_USERS"
+        "CODEX_QQUSE_USERS",
+        "CODEX_QQUSE_AUTO_START",
+        "CODEX_QQUSE_NAPCAT_ROOT",
+        "CODEX_QQUSE_QQ_EXE",
+        "CODEX_QQUSE_QQ_ID"
       ],
       "startup_timeout_sec": 10,
       "tool_timeout_sec": 30
