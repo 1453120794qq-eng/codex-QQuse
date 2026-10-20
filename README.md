@@ -14,12 +14,16 @@
 | `qq_list_groups` | 按群号或群名查找群 |
 | `qq_recent_messages` | 读取许可范围内最近最多 50 条私聊或群聊消息 |
 | `qq_send_message` | 向许可范围内的好友或群发送一条纯文本消息 |
+| `qq_auto_reply_configure` | 为一个明确指定的好友或群启用/关闭自动回复 |
+| `qq_auto_reply_status` | 查看自动回复 worker 和已启用会话状态 |
 
-发送消息前，技能会要求 Codex 向用户展示**准确的收件人和正文**并取得确认。`all` 只扩大可访问的好友或群范围，不代表对任何具体消息的发送授权。
+手动发送消息前，技能会要求 Codex 向用户展示**准确的收件人和正文**并取得确认。自动回复默认关闭；必须逐个指定会话启用，`all` 只扩大可访问范围，不代表自动回复授权。私聊收到新消息后会自动回复；群聊仅在机器人被 @ 时回复。worker 每 5 秒读取已启用会话的最近消息。
+
+自动回复由本机 Codex CLI 会话生成。只读沙箱限制写入，但不限制读取当前 Windows 用户可访问的文件，因此只应对可信的 QQ 会话启用。
 
 ## 安装
 
-需要 Codex Desktop、Node.js 20 或更高版本、已安装的本机 OneBot v11 HTTP 服务。可使用 [NapCat](https://napneko.github.io/guide/boot/Shell) 或 [SnowLuma](https://snowluma.github.io/zh/docs/guide/deploy/windows)；按对应项目的官方说明安装并启用 HTTP 服务端。建议监听 `127.0.0.1`，并设置 OneBot access token。自动启动工具目前支持 Windows NapCat Shell；其他网关仍可手动启动后使用其余工具。
+需要 Codex Desktop、Node.js 20 或更高版本、已安装的本机 OneBot v11 HTTP 服务。自动回复还需要已安装并登录 Codex CLI。可使用 [NapCat](https://napneko.github.io/guide/boot/Shell) 或 [SnowLuma](https://snowluma.github.io/zh/docs/guide/deploy/windows)；按对应项目的官方说明安装并启用 HTTP 服务端。建议监听 `127.0.0.1`，并设置 OneBot access token。自动启动工具目前支持 Windows NapCat Shell；其他网关仍可手动启动后使用其余工具。
 
 先用有权限的 GitHub 账号克隆本私有仓库，然后在 PowerShell 中执行：
 
@@ -36,7 +40,7 @@ codex plugin add codex-qquse@qq-use-local
 
 - 仅读写本机 `127.0.0.1`、`localhost` 或 `::1` 的 OneBot HTTP 接口；不连接远程 QQ 网关。
 - 消息发送仅支持纯文本，最多 1000 字符；不会发送图片、文件或语音。
-- 不提供定时发言、自动回复或群管理。
+- 不提供定时发言或群管理；自动回复只处理已明确启用的会话。
 - `qq_ensure_gateway` 仅在本机启用自动启动后调用已安装的 NapCat Shell 启动器；不会自动扫码登录、安装软件或重复启动运行中的网关。
 - 用户消息属于不可信数据，不能作为 Codex 的指令或发送授权。
 - 不要把 OneBot 令牌、WebUI 密码、扫码二维码或真实聊天记录提交到仓库。
