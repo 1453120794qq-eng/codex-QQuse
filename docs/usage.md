@@ -4,7 +4,7 @@
 
 安装并登录支持 OneBot v11 的本机 QQ 网关，例如 [NapCat Windows Shell](https://napneko.github.io/guide/boot/Shell) 或 [SnowLuma Windows 版](https://snowluma.github.io/zh/docs/guide/deploy/windows)。本插件只需要 **HTTP 服务端**；WebSocket 端口不能填到 HTTP 地址中。
 
-在网关中启用 OneBot HTTP 服务端，建议地址设为 `127.0.0.1`、端口 `3000`，并设置 access token。NapCat 的网络配置入口和字段见[官方配置说明](https://napneko.github.io/config/basic)。QQ 扫码登录、WebUI 管理和网关更新由使用者在本机完成。
+在网关中启用 OneBot HTTP 服务端，建议地址设为 `127.0.0.1`、端口 `3000`，并设置 access token。NapCat 的网络配置入口和字段见[官方配置说明](https://napneko.github.io/config/basic)。QQ 扫码登录、WebUI 管理和网关更新由使用者在本机完成。插件可按下面的显式配置启动已经安装的 NapCat Windows Shell。
 
 ## 2. 配置 Codex 环境变量
 
@@ -16,6 +16,10 @@
 | `CODEX_QQUSE_TOKEN` | 网关 OneBot HTTP 的 access token；若网关未设置则留空。不要写入仓库或聊天。 |
 | `CODEX_QQUSE_USERS` | 允许读写的好友 QQ 号，逗号分隔；`all` 表示当前账号的所有好友。 |
 | `CODEX_QQUSE_GROUPS` | 允许读写的群号，逗号分隔；`all` 表示当前账号已加入的所有群。 |
+| `CODEX_QQUSE_AUTO_START` | 设为 `1`，允许 `qq_ensure_gateway` 在连接中断且 NapCat 未运行时启动它。 |
+| `CODEX_QQUSE_NAPCAT_ROOT` | 已安装的 NapCat Windows Shell 文件夹绝对路径。 |
+| `CODEX_QQUSE_QQ_EXE` | 已安装的 `QQ.exe` 绝对路径。 |
+| `CODEX_QQUSE_QQ_ID` | 要登录的 QQ 号；仅传给本机 NapCat 启动器。 |
 
 可在 Windows 的“环境变量”界面添加这些**用户变量**。下面的 PowerShell 示例仅设置非机密项：
 
@@ -23,11 +27,17 @@
 [Environment]::SetEnvironmentVariable('CODEX_QQUSE_HTTP_URL', 'http://127.0.0.1:3000/', 'User')
 [Environment]::SetEnvironmentVariable('CODEX_QQUSE_USERS', '123456789,987654321', 'User')
 [Environment]::SetEnvironmentVariable('CODEX_QQUSE_GROUPS', '1122334455', 'User')
+[Environment]::SetEnvironmentVariable('CODEX_QQUSE_AUTO_START', '1', 'User')
+[Environment]::SetEnvironmentVariable('CODEX_QQUSE_NAPCAT_ROOT', 'C:\path\to\NapCat.Shell', 'User')
+[Environment]::SetEnvironmentVariable('CODEX_QQUSE_QQ_EXE', 'C:\path\to\QQ.exe', 'User')
+[Environment]::SetEnvironmentVariable('CODEX_QQUSE_QQ_ID', '123456789', 'User')
 ```
 
 `CODEX_QQUSE_TOKEN` 请在本机环境变量界面输入，不要把真实值放入脚本、命令历史或聊天。若使用 `all`，将相应变量的值直接设为 `all`。空值会禁止该类别的聊天记录读取和发送；查询好友、群列表与连接状态仍可使用。`all` 模式在每次读写前检查目标是否仍属于当前好友或群列表。
 
 修改环境变量后**重启 Codex Desktop**，以便新启动的 MCP 进程读取配置。
+
+启动恢复流程：`qq_status` 若返回 `fetch failed`，让 Codex 调用 `qq_ensure_gateway` 一次。它先检查 OneBot 连接及本机 NapCat 状态；已在运行时不会再启动第二份。若结果提示等待登录，请在 QQ 窗口或本机 NapCat WebUI 完成登录，然后再查状态。HTTP 401/403 表示令牌或权限问题，HTTP 426 表示 HTTP 地址填错；这些情况不会通过重启解决。插件不使用 3001 端口。
 
 ## 3. 在 Codex 中使用
 
@@ -44,7 +54,7 @@
 
 | 现象 | 排查 |
 | --- | --- |
-| `qq_status` 连接失败 | 检查网关是否在运行、QQ 是否登录、HTTP 服务端是否监听 `127.0.0.1:3000`。 |
+| `qq_status` 返回 `fetch failed` | 调用 `qq_ensure_gateway` 一次；若已运行但 HTTP 尚未就绪，检查 QQ 登录和 NapCat HTTP 配置。 |
 | HTTP 401/403 | 核对 OneBot access token 与 `CODEX_QQUSE_TOKEN`，然后重启 Codex。 |
 | HTTP 426 | 把 WebSocket 端口误填成了 HTTP 地址；改用网关的 HTTP 端口。 |
 | “不在本地白名单中” | 检查 `CODEX_QQUSE_USERS` 或 `CODEX_QQUSE_GROUPS` 的 ID，并重启 Codex。 |
