@@ -6,7 +6,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 
 const NAME = 'codex-qquse';
-const VERSION = '0.1.4';
+const VERSION = '0.1.5';
 const DEFAULT_HTTP_URL = 'http://127.0.0.1:3000/';
 const MAX_MESSAGE_CHARS = 1000;
 const MAX_HISTORY = 50;
@@ -262,7 +262,7 @@ async function ensureGateway() {
   const paths = napcatPaths();
   await requireNapcatFiles(paths);
   await spawnNapcat(paths);
-  for (let attempt = 0; attempt < 10; attempt += 1) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     if (await isPortOpen(Number(endpoint('get_login_info').port || 80))) {
       const result = await gatewayConnection();
@@ -272,7 +272,7 @@ async function ensureGateway() {
     }
   }
   return { state: 'started_waiting_for_http_or_login', connected: false, started: true,
-    nextStep: 'NapCat 启动命令已执行，HTTP 接口尚未就绪。请检查本机 QQ 登录和 NapCat 日志，再调用 qq_status。' };
+    nextStep: 'NapCat 启动命令已执行，HTTP 接口尚未就绪。稍后重试 qq_status 一次；若仍失败，请检查本机 QQ 登录和 NapCat 日志。' };
 }
 
 function checkedLimit(value, max, fallback) {
