@@ -14,8 +14,6 @@
 | `qq_list_groups` | 按群号或群名查找群 |
 | `qq_recent_messages` | 读取许可范围内最近最多 50 条私聊或群聊消息 |
 | `qq_send_message` | 向许可范围内的好友或群发送一条纯文本消息 |
-| `qq_auto_reply_configure` | 为一个明确指定的好友或群启用/关闭自动回复 |
-| `qq_auto_reply_status` | 查看自动回复 worker 和已启用会话状态 |
 | `qq_auto_reply_job_get` | 在绑定的桌面聊天中读取排队任务对应的 QQ 消息 |
 | `qq_auto_reply_job_send` | 把该任务的回复发送到原 QQ 会话；重复调用不会重复发送 |
 

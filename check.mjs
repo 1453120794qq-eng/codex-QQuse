@@ -80,7 +80,7 @@ try {
   const catalog = await rpc('tools/list');
   assert.deepEqual(catalog.result.tools.map((item) => item.name), [
     'qq_status', 'qq_ensure_gateway', 'qq_list_friends', 'qq_list_groups', 'qq_recent_messages', 'qq_send_message',
-    'qq_auto_reply_configure', 'qq_auto_reply_status', 'qq_auto_reply_job_get', 'qq_auto_reply_job_send'
+    'qq_auto_reply_job_get', 'qq_auto_reply_job_send'
   ]);
   const status = await tool('qq_status');
   assert.equal(status.result.structuredContent.accountId, 10001);

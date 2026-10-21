@@ -1,13 +1,13 @@
 {
   "name": "codex-qquse",
-  "version": "0.3.0",
-  "description": "Use a local QQ account and optionally enable per-chat Codex auto-replies through OneBot v11.",
+  "version": "0.3.1",
+  "description": "Use local QQ through OneBot v11 and process auto-reply jobs queued into saved Codex desktop threads.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "codex-QQuse",
-    "shortDescription": "Use QQ and configure per-chat auto-replies",
-    "longDescription": "Connect Codex to a local OneBot v11 HTTP endpoint, restore an opted-in NapCat Shell gateway when stopped, read chats, send plain text with approval, and optionally auto-reply in explicitly enabled chats.",
+    "shortDescription": "Use QQ and handle queued replies",
+    "longDescription": "Connect Codex to a local OneBot v11 HTTP endpoint, restore an opted-in NapCat Shell gateway when stopped, read chats, send plain text with approval, and process auto-reply jobs from locally saved bindings.",
     "developerName": "1453120794qq-eng",
     "websiteURL": "https://github.com/1453120794qq-eng/codex-QQuse",
     "category": "Productivity",
@@ -16,7 +16,7 @@
       "查看我的 QQ 连接状态",
       "帮我查找一个 QQ 群并读取最近消息",
       "帮我给 QQ 好友拟一条消息，确认后发送",
-      "开启给好友 123456789 的 QQ 自动回复"
+      "处理当前聊天中排队的 QQ 自动回复任务"
     ]
   }
 }
