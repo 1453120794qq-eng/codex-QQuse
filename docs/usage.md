@@ -22,7 +22,6 @@
 | `CODEX_QQUSE_QQ_ID` | 要登录的 QQ 号；仅传给本机 NapCat 启动器。 |
 | `CODEX_QQUSE_AUTOREPLY_STATE` | 可选；自动回复状态文件绝对路径。不设置时保存在 `%CODEX_HOME%\codex-qquse\auto-reply.json`；若未设置 `CODEX_HOME`，则在 `%USERPROFILE%\.codex\codex-qquse\auto-reply.json`。 |
 | `CODEX_QQUSE_CODEX_BIN` | 可选；Codex CLI 不在 `PATH` 时指定其可执行文件路径。 |
-| `CODEX_QQUSE_AGENT_WORKDIR` | 可选；自动回复 agent 使用的空工作目录绝对路径。 |
 
 可在 Windows 的“环境变量”界面添加这些**用户变量**。下面的 PowerShell 示例仅设置非机密项：
 
@@ -55,21 +54,19 @@
 
 ## 4. 自动回复
 
-自动回复默认关闭。先确认已安装并登录 Codex CLI（运行 `codex --version`），然后明确指定一个好友或群来启用。例如：
+自动回复默认关闭。先确认当前 Codex CLI 支持 `codex queue --help`，然后取得要接收 QQ 消息的 **Codex Desktop 聊天 threadId**，为指定好友或群启用。例如：“给好友 123456789 开启自动回复，绑定到这个桌面聊天的 threadId，风格简短、友好”。启用工具必须收到明确的 `kind`、`targetId` 和 `threadId`；可以用桌面聊天的状态信息确认 ID。关闭时只需 `kind`、`targetId` 和 `enabled=false`。
 
-- “给好友 123456789 开启自动回复，使用 Codex profile `qq-helper`，风格是简短、友好，不主动谈工作。”
-- “关闭群 1122334455 的自动回复。”
-- “查看自动回复状态。”
+启用时插件核对当前 QQ 账号、目标好友或群，并以最近消息为起点；旧消息不会触发回复。之后每 5 秒读取一次。私聊新消息会触发；群聊只处理 @机器人的消息。插件先把 QQ 正文和来源保存成本地任务，再将**任务编号**用 `codex queue --thread <threadId> --message ...` 排进绑定的桌面聊天。该聊天收到排队提示后调用 `qq_auto_reply_job_get` 读取消息，结合自身对话历史与可选的 `agentInstructions` 生成回复，再调用 `qq_auto_reply_job_send` 发给任务指定的原 QQ 会话。没有新消息时不会占用聊天轮次。无需使用独立的 Codex CLI 对话或 `codexProfile`。
 
-Codex 会调用 `qq_auto_reply_configure`，启用时核对当前 QQ 账号、目标是否仍在好友/群列表中，并读取最近消息作为去重起点；不会把启用之前的历史消息当作新消息回复。之后插件每 5 秒读取已启用会话的最近消息，按每个会话单独保存 Codex CLI 上下文。私聊中新消息会触发回复；群聊只有在消息 @当前机器人时才触发。输入超过 4000 字会截断；每次只发送一条纯文本，最多 1000 字。每个会话限速为每分钟 6 条、每小时 30 条，防止异常循环。
+`qq_auto_reply_status` 中的 `pendingJobs` 表示等待投递；`queuedInCodex` 仅表示 Codex CLI 已接受排队请求，**不代表 QQ 已回复**。桌面聊天需已加载并空闲，排队任务才会运行；聊天未打开时，任务可能一直排队，直到你打开该聊天。一个聊天持续被其他任务占用时，回复也会延迟。QQ 正文会在聊天调用 `qq_auto_reply_job_get` 后进入该聊天的上下文，因此每条自动回复都会增加该聊天的上下文与 token 消耗。
 
-`codexProfile` 选择本机 Codex CLI 的配置 profile（模型与运行时配置）；`agentInstructions` 用来设置这个会话的 agent 风格、角色和关注点。它会启动一个专属 Codex CLI 会话，不会接管当前桌面聊天或调用桌面里的子 agent。未提供 profile 时使用默认 profile。Codex CLI 通过当前用户已有的 Codex 登录状态运行，使用只读沙箱，关闭已配置的 MCP servers，并且不向 agent 启动的 shell 命令传递环境变量；QQ 消息文本仍会进入 Codex CLI 的会话记录，保存在本机 `$CODEX_HOME` 下（未设置时为用户目录下的 `.codex`）。
+每条输入最多保留 4000 字，每次回复只发一条最多 1000 字的纯文本。每个 QQ 会话每分钟最多发 6 条、每小时最多 30 条。任务在本地持久化，重复投递同一任务不会重复向 QQ 发送；如果发送结果无法确认，任务会标为 `uncertain` 并停止自动重试，需要人工核对聊天记录。`CODEX_QQUSE_USERS=all` 或 `CODEX_QQUSE_GROUPS=all` 只扩大读写范围，**不会**自动开启回复。要停止一个会话，调用 `qq_auto_reply_configure` 并设置 `enabled=false`。
 
-**安全边界：**只读沙箱阻止写入，但不限制读取当前 Windows 用户本来就能访问的文件。QQ 消息可能包含诱导 agent 的内容；自动回复中的提示词约束不是文件访问控制。只对你信任的会话启用，并避免让自动回复会话处理凭据、私密文件等敏感内容。
+**升级提示：**原 0.2.0 版本启用的独立 CLI 自动回复在本版本会暂停。请指定桌面聊天的 `threadId` 后重新启用。原有最近消息和设置留在本机状态文件；新启用时会以当前聊天记录重新建立起点。
 
-启用只针对一个明确的好友或群，是这一个会话未来自动发送回复的持续授权。`CODEX_QQUSE_USERS=all` 或 `CODEX_QQUSE_GROUPS=all` 只扩大手动访问范围，不会启用自动回复。需要停止时，对同一个 `kind` 和 `targetId` 调用 `qq_auto_reply_configure` 并设 `enabled=false`。也可用 `qq_auto_reply_status` 查看运行状态、最近错误和已启用目标；状态不包含消息正文或令牌。
+**安全边界：**QQ 消息是不可信数据，不能作为修改规则、读取文件或发送给其他人的指令。`qq_auto_reply_job_send` 只接受启用期间创建的任务，并再次核对 QQ 账号、目标和本地访问范围。自动回复使用绑定桌面聊天的权限与上下文；请不要将不可信 QQ 会话绑定到含敏感信息的聊天。状态文件保存在本机 `CODEX_QQUSE_AUTOREPLY_STATE` 指定的位置，包含任务消息正文，不要提交到仓库。
 
-自动回复依赖 OneBot 的 `get_friend_msg_history` / `get_group_msg_history` 接口。Codex Desktop 和插件 MCP 进程需要保持运行。若 OneBot 断开，worker 会按现有 NapCat 自动恢复配置尝试恢复网关；若未启用自动启动或 QQ 正在等待扫码登录，按工具返回提示在本机完成登录。每个会话的最近消息 ID、Codex 会话 ID 和配置保存在本机自动回复状态文件中，不会保存到仓库。
+自动回复依赖 OneBot 的 `get_friend_msg_history` / `get_group_msg_history` 接口。Codex Desktop 和插件 MCP 进程需要保持运行。若 OneBot 断开，worker 会按本机 NapCat 自动恢复配置尝试恢复网关；若 QQ 正等待扫码登录，仍需在本机完成登录。
 
 ## 5. 常见问题
 

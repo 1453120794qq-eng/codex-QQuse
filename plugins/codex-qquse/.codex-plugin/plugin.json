@@ -1,6 +1,6 @@
 {
   "name": "codex-qquse",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Use a local QQ account and optionally enable per-chat Codex auto-replies through OneBot v11.",
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
